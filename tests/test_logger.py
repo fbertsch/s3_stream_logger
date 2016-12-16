@@ -19,11 +19,28 @@ def _setup_module():
 class TestS3StreamLoggerLog:
 
     @mock_s3
-    def test_log(self):
+    def test_log_multiple_files(self):
         _setup_module()
         logger = S3StreamLogger(bucket_name, prefix, lines=3)
         logger.log('test\ntest\ntest\ntest')
-        objs = bucket.meta.client.list_objects(Bucket=bucket.name, Delimiter='/', Prefix=prefix)
-        assert len(objs) >= 1, 'Should be more than one object'
-        
-        
+        logger.close()
+        objs = list(bucket.objects.filter(Prefix=prefix))
+        assert len(objs) == 2, 'Should be two objects'
+
+    @mock_s3
+    def test_log_single_file(self):
+        _setup_module()
+        logger = S3StreamLogger(bucket_name, prefix, lines=10)
+        logger.log('test\ntest\ntest\ntest')
+        logger.close()
+        objs = list(bucket.objects.filter(Prefix=prefix))
+        assert len(objs) == 1, 'Should be one object'
+
+    @mock_s3
+    def test_log_no_file_without_close(self):
+        _setup_module()
+        logger = S3StreamLogger(bucket_name, prefix, lines=10)
+        logger.log('test\ntest\ntest\ntest')
+        objs = list(bucket.objects.filter(Prefix=prefix))
+        assert len(objs) == 0, 'Should be no objects'
+

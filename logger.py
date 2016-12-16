@@ -8,12 +8,13 @@ def _clean_s3_path(path):
 
 class S3StreamLogger:
 
+    _buffer_size = 5 * 1024 ** 2
+
     def __init__(self, bucket, prefix, bytes=None, lines=None, delta=None, daily=False):
         self.bucket = _clean_s3_path(bucket)
         self.prefix = _clean_s3_path(prefix)
         self.lines = lines
         self._reset()
-        if daily:
             raise NotImplementedError('Daily writing is not yet implemented')
         if bytes:
             raise NotImplementedError('Writing out bytes is not yet implemented')
@@ -27,7 +28,7 @@ class S3StreamLogger:
 
     def _next_file(self):
         filename = 's3://{}/{}/{}'.format(self.bucket, self.prefix, datetime.now().isoformat())
-        return smart_open.smart_open(filename, 'w')
+        return smart_open.smart_open(filename, 'w', min_part_size=S3StreamLogger._buffer_size)
 
     def _append(self, line):
         self.file.write(line + '\n')

@@ -1,5 +1,8 @@
-from moto import mock_s3
 import boto3
+import time
+import pytest
+
+from moto import mock_s3
 from logger import S3StreamLogger
 
 def _setup_module():
@@ -43,4 +46,28 @@ class TestS3StreamLoggerLog:
         logger.log('test\ntest\ntest\ntest')
         objs = list(bucket.objects.filter(Prefix=prefix))
         assert len(objs) == 0, 'Should be no objects'
+
+    @mock_s3
+    @pytest.mark.slow
+    def test_log_time_delta(self):
+        _setup_module()
+        logger = S3StreamLogger(bucket_name, prefix, hours=.00025)
+        logger.log('testtest')
+        time.sleep(1)
+        logger.log('testtest')
+        logger.close()
+        objs = list(bucket.objects.filter(Prefix=prefix))
+        assert len(objs) == 2, 'Should be two object'
+
+    @mock_s3
+    @pytest.mark.slow
+    def test_log_time_delta_with_newlines(self):
+        _setup_module()
+        logger = S3StreamLogger(bucket_name, prefix, hours=.00025)
+        logger.log('test\ntest\ntest\ntest\ntest\ntest\ntest\n')
+        time.sleep(1)
+        logger.log('test\ntest\ntest\ntest\ntest\ntest\ntest\n')
+        logger.close()
+        objs = list(bucket.objects.filter(Prefix=prefix))
+        assert len(objs) == 2, 'Should be two object'
 

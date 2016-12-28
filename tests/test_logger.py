@@ -71,3 +71,15 @@ class TestS3StreamLoggerLog:
         objs = list(bucket.objects.filter(Prefix=prefix))
         assert len(objs) == 2, 'Should be two object'
 
+    @mock_s3
+    @pytest.mark.slow
+    def test_log_time_delta_and_line_limit(self):
+        _setup_module()
+        logger = S3StreamLogger(bucket_name, prefix, hours=.00025, lines=5)
+        logger.log('test\ntest\ntest\ntest\ntest\ntest\ntest\n')
+        time.sleep(1)
+        logger.log('test')
+        logger.close()
+        objs = list(bucket.objects.filter(Prefix=prefix))
+        assert len(objs) == 3, 'Should be three object'
+

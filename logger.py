@@ -24,6 +24,12 @@ class S3StreamLogger:
         >>> #an object spans at most 24 hours
         >>> logger = S3StreamLogger('test-bucket', 'logs', hours=24)
         >>> logger.log('another test line')
+
+        >>> #use with csv writer
+        >>> import csv
+        >>> _s3_logger = S3StreamLogger('test-bucket', 'logs', hours=24)
+        >>> csv_writer = csv.writer(_s3_logger)
+        >>> csv_writer.writerow(['hello', 'world', '!'])
     """
 
     _buffer_size = 5 * 1024 ** 2
@@ -65,7 +71,7 @@ class S3StreamLogger:
             if self._reset_conditions_satisifed(current_time):
                 self._reset()
             self._append(line)
-    
+
     def write(self, content):
         self.log(content)
 

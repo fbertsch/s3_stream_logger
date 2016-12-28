@@ -65,6 +65,9 @@ class S3StreamLogger:
             if self._reset_conditions_satisifed(current_time):
                 self._reset()
             self._append(line)
+    
+    def write(self, content):
+        self.log(content)
 
     def close(self):
         if hasattr(self, 'file') and self.file:

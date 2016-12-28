@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'S3_Stream_Logger',
-    version = '0.0.1',
+    version = '0.0.2',
     description = 'Tool for logging a never-ending stream of data to S3',
     py_modules = ['logger'],
 

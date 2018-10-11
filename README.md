@@ -1,4 +1,4 @@
-#S3 Stream Logger
+# S3 Stream Logger
 Sometimes you just want to upload a never ending log to s3. Well, with this utility, just do the following:
 
 ```
